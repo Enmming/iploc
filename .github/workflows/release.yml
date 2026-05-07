@@ -1,0 +1,41 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    name: Build and publish DMG
+    runs-on: macos-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Run tests
+        run: swift test
+
+      - name: Package DMG
+        run: scripts/package_dmg.sh "${GITHUB_REF_NAME}"
+
+      - name: Verify app bundle
+        run: |
+          codesign --verify --deep --strict --verbose=2 dist/IPLoc.app
+          if find dist/IPLoc.app \( -name '*.mmdb' -o -name '*.mmdb.gz' -o -name 'StatusBarIcon.png' \) | grep .; then
+            echo "Unexpected bundled database or old status icon file"
+            exit 1
+          fi
+
+      - name: Publish GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "${GITHUB_REF_NAME}" \
+            "dist/IPLoc-${GITHUB_REF_NAME}-macos.dmg" \
+            --title "IPLoc ${GITHUB_REF_NAME}" \
+            --notes "Download the DMG, open it, and drag IPLoc.app to Applications. The DB-IP City Lite database is downloaded on first launch after confirmation."
