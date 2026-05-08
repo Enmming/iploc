@@ -1,4 +1,5 @@
 import Testing
+import Foundation
 @testable import IPLocCore
 
 @Test func initialDatabaseDownloadCopyIsEnglishAndAvoidsImplementationDetails() {
@@ -21,6 +22,13 @@ import Testing
     #expect(AppMenuCopy.publicIP(nil) == "Public IP: Unknown")
     #expect(AppMenuCopy.location("United States / Virginia / Ashburn") == "Location: United States / Virginia / Ashburn")
     #expect(AppMenuCopy.localIP("192.168.0.245") == "LAN IP: 192.168.0.245")
+    #expect(AppMenuCopy.lastRefreshed(nil) == "Last refreshed: Never")
+
+    var calendar = Calendar(identifier: .gregorian)
+    calendar.timeZone = TimeZone(secondsFromGMT: 0)!
+    let refreshTime = DateComponents(calendar: calendar, timeZone: calendar.timeZone, year: 2026, month: 5, day: 8, hour: 14, minute: 32, second: 8).date!
+    #expect(AppMenuCopy.lastRefreshed(refreshTime, calendar: calendar) == "Last refreshed: 14:32:08")
+
     #expect(AppMenuCopy.databaseInstalled(release: DBIPDatabaseRelease(year: 2026, month: 5)) == "Database: DB-IP City Lite 2026-05")
     #expect(AppMenuCopy.databaseNotInstalled == "Database: Not installed")
     #expect(AppMenuCopy.status("Refreshing") == "Status: Refreshing")

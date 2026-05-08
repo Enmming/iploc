@@ -302,6 +302,7 @@ final class AppController: NSObject, NSApplicationDelegate {
         addDisabledItem(AppMenuCopy.publicIP(snapshot.publicIP))
         addDisabledItem(AppMenuCopy.location(locationSummary()))
         addDisabledItem(AppMenuCopy.localIP(snapshot.localIP))
+        addDisabledItem(AppMenuCopy.lastRefreshed(lastRefreshAt))
 
         if let metadata {
             menu.addItem(.separator())
